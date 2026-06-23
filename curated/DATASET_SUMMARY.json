@@ -1,0 +1,36 @@
+{
+  "dataset": "PARALLAX curated adjudication dataset",
+  "total_entries": 18,
+  "positives": 8,
+  "negatives": 10,
+  "economic_classes_covered": 10,
+  "classes": [
+    "access_control_drain",
+    "amm_kfloor",
+    "centralization",
+    "dilution",
+    "first_depositor_inflation",
+    "lending_overborrow",
+    "price_manipulation",
+    "reward_accrual",
+    "theoretical_no_poc",
+    "third_party_oracle"
+  ],
+  "out_of_scope_categories": [
+    "centralization",
+    "privileged_access",
+    "theoretical_no_poc",
+    "third_party_oracle_bad_data"
+  ],
+  "two_track": {
+    "adjudication": {
+      "POSITIVE": 8,
+      "NEGATIVE": 7
+    },
+    "scope_routing": {
+      "NEGATIVE": 3
+    }
+  },
+  "result": "FP=0 and FN=0 on the adjudication track; out-of-scope submissions correctly not certified on the scope-routing track",
+  "note": "Value is judged by EVM execution only. Positives are corroborated by a replayable witness; negatives ran and produced none. Reproduced deterministically across runs."
+}

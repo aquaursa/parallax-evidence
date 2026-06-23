@@ -1,0 +1,19 @@
+PARALLAX AI-SLOP DISCRIMINATION -- claim vs EVM-executed evidence
+==============================================================================
+  [ok] real-econ      expected=REAL -> CORROBORATED           (is_slop=False)
+  [ok] real-cert      expected=REAL -> CORROBORATED           (is_slop=False)
+  [ok] real-acl       expected=REAL -> CORROBORATED           (is_slop=False)
+  [ok] real-nft       expected=REAL -> CORROBORATED           (is_slop=False)
+  [ok] slop-cwe       expected=SLOP -> CLAIM_WITHOUT_EVIDENCE (is_slop=True)
+  [ok] slop-hollow    expected=SLOP -> HOLLOW_ASSERTION       (is_slop=True)
+  [ok] slop-mismatch  expected=SLOP -> CLASS_MISMATCH         (is_slop=True)
+  [ok] slop-prose     expected=SLOP -> NO_RUNNABLE_CLAIM      (is_slop=True)
+  [ok] slop-inert     expected=SLOP -> CLAIM_WITHOUT_EVIDENCE (is_slop=True)
+  [ok] slop-fab-prank expected=SLOP -> FABRICATED_EVIDENCE    (is_slop=True)
+  [ok] slop-fab-store expected=SLOP -> FABRICATED_EVIDENCE    (is_slop=True)
+==============================================================================
+  real witnesses: 4   slop submissions: 7
+  real-as-slop (cardinal failure, must be 0): 0 
+  slop-as-real (slipped through): 0 
+
+RESULT: PASS -- every real witness CORROBORATED, every slop mode caught; clean separation
