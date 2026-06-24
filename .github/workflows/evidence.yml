@@ -7,5 +7,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: python3 slop_demo/slop_discrimination.py
-      - run: python3 slop_demo/test_demo.py
+      - name: Slop discrimination (FP=0 separation)
+        run: |
+          python3 slop_demo/slop_discrimination.py
+          python3 slop_demo/test_demo.py
+      - name: False-negative safety (zero suppression of real exploits)
+        run: |
+          python3 safety_demo/false_negative_safety.py
+          python3 safety_demo/test_demo.py
+      - name: Intake fail-closed (messy submissions route to a human, never dropped)
+        run: |
+          python3 intake_demo/intake_failclosed.py
+          python3 intake_demo/test_demo.py

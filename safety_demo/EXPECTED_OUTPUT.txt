@@ -1,0 +1,31 @@
+PARALLAX false-negative / no-suppression demonstration
+==============================================================================
+Ground truth: every row is a REAL, occurred Ethereum exploit (DeFiHackLabs).
+The property under test: a real exploit is NEVER told 'safe to close' unless CERTIFIED.
+
+  OK LAURAToken       CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK SBRToken         CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK UsualMoney       CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK CoW              CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK Unilend          CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK IdolsNFT         CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK vETH             CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK PeapodsFinance   CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK OneInchFusionV1  CERTIFIED         act: certified economic witness (deprioritise human read; replayable proof attached)
+  OK MainnetSettler   FACT-PLUS-ROUTE   escalate: routed to a human with the typed reason (never auto-closed)
+  OK VRug             FACT-PLUS-ROUTE   escalate: routed to a human with the typed reason (never auto-closed)
+  OK Alkimiya_io      FACT-PLUS-ROUTE   escalate: routed to a human with the typed reason (never auto-closed)
+  OK LeverageSIR      FACT-PLUS-ROUTE   escalate: routed to a human with the typed reason (never auto-closed)
+
+------------------------------------------------------------------------------
+  real exploits, total                 : 13
+  certified automatically (no human)   : 9  (69%)
+  escalated to a human (preserved)     : 4
+  SUPPRESSED (real exploit auto-closed): 0   <-- the number that must be zero
+------------------------------------------------------------------------------
+
+RESULT: PASS -- zero real exploits suppressed.
+Every incident the engine could not certify was ESCALATED to a human as a confirmed-runnable
+fact, exactly as it would reach the triager today. The automation removed work on the 9 it could
+prove (a conservation-checked, replayable witness), and quietly preserved the rest. A missed
+Critical -- a real bug silently closed -- cannot happen on this path by construction.

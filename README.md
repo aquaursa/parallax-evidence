@@ -1,12 +1,14 @@
 # PARALLAX Evidence
 
-Two claims matter most to a bug-bounty platform, and both are reproducible here.
+Three claims matter most to a bug-bounty platform, and all three are reproducible here, in seconds, on the Python standard library.
 
-First, PARALLAX does not raise false positives. On a curated, adversarial dataset it returns FP=0 and FN=0 on the adjudication track, and it correctly declines out-of-scope submissions on the scope-routing track.
+**It does not raise false positives.** On a curated, adversarial dataset it returns FP=0 and FN=0 on the adjudication track, and correctly declines out-of-scope submissions on the scope-routing track. It tells real exploits apart from confident, AI-written reports that don't reproduce — including slop built to *look* corroborated — by holding the submitter's claim and the EVM-executed evidence side by side and checking they agree. (`slop_demo/`)
 
-Second, it tells real exploits apart from confident, AI-written reports that don't reproduce, including the slop that's built to *look* corroborated. It does this by holding the submitter's claim and the EVM-executed evidence side by side and checking that they agree.
+**It does not suppress real bugs.** The fear that actually matters in triage is the opposite of a false positive: silently closing a genuine vulnerability. Over the real-incident outcomes, every exploit the engine cannot certify is *escalated to a human with a reason*, never auto-closed. A missed Critical cannot happen on this path by construction. (`safety_demo/`)
 
-Everything in this repo runs on the Python standard library. No network, no engine. This is the evidence, not the engine itself. The production system judges real EVM execution traces; these demos run the same decision logic over labeled, pre-computed facts, so you can watch the separation happen and read exactly how the call gets made.
+**It fails closed on messy input.** A real submission in the wild is a mess — prose with no code, a unit test that never forks mainnet, a report naming no target. When a submission isn't something the engine can run, it routes to a human with a typed reason; it is never dropped and never becomes a negative by failing to parse. (`intake_demo/`)
+
+Everything here runs on the Python standard library. No network, no engine. This is the evidence, not the engine itself. The production system judges real EVM execution traces; these demos run the same decision logic over labeled, pre-computed facts, so you can watch the call get made and read exactly how.
 
 ## Run it
 
@@ -26,9 +28,20 @@ RESULT: PASS -- every real witness CORROBORATED, every slop mode caught; clean s
 
 The hard cases are in there. A PoC that **passes under forge** while asserting `assertTrue(true)`. A submission that claims theft but moves no money. Slop that manufactures a real-looking gain with test-harness cheatcodes, pranking a whale or writing a balance with `deal()`. A filter that only asks "did the test pass?" falls for all three. The claim-versus-evidence check doesn't.
 
+Then the two demos that answer the questions a triage lead actually asks:
+
+```sh
+python3 safety_demo/false_negative_safety.py     # does it ever silently miss a real bug?
+python3 intake_demo/intake_failclosed.py         # what happens when a submitted PoC is a mess?
+```
+
+The safety demo runs the disposition contract over thirteen real, occurred Ethereum exploits: nine certify automatically, four escalate to a human as confirmed-runnable facts, and **zero are suppressed** — a real bug is never told "safe to close" unless the EVM proved it. The intake demo runs six messy submission shapes through the front door: the two runnable ones route to a judge, the four that aren't route to a human *with a typed reason*, and **none are dropped**.
+
 ## What's here
 
 - `slop_demo/` — the standalone slop discriminator and its expected output. Open `slop_discrimination.py`; the decision logic is about forty lines and reads the way it runs.
+- `safety_demo/` — the false-negative / no-suppression demonstration: real exploits are escalated, never silently closed. `false_negative_safety.py` plus its expected output and self-tests.
+- `intake_demo/` — the fail-closed front door: messy submissions route to a human with a typed reason, never dropped, never mis-recorded as a negative. `intake_failclosed.py` plus its expected output and self-tests.
 - `curated/DATASET_SUMMARY.json` — the shape of the FP=0 dataset. Eighteen entries across ten economic classes and four out-of-scope categories, with the two-track confusion matrix.
 
 ## Why FP=0 actually means something

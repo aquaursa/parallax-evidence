@@ -1,0 +1,28 @@
+PARALLAX intake front-door -- fail-closed routing demonstration
+================================================================================
+A submission the engine cannot run must ESCALATE to a human with a reason -- never be
+silently dropped, never become a negative by failing to parse.
+
+  OK prose-only 'reentrancy' report (classic AI slop)
+       -> ROUTE_TO_HUMAN (forge_no_test_function)
+  OK a unit test that never forks mainnet (not a valid PoC)
+       -> ROUTE_TO_HUMAN (forge_test_without_fork)
+  OK Solidity pasted but no test function to run
+       -> ROUTE_TO_HUMAN (forge_no_test_function)
+  OK a real mainnet-fork Foundry PoC (adjudicable)
+       -> ROUTE_FORGE_FORK
+  OK an incident report citing the attacker transaction (adjudicable)
+       -> ROUTE_TXHASH
+  OK a one-line 'please pay me' with a wallet (junk)
+       -> ROUTE_TO_HUMAN (prose_only_no_executable)
+
+--------------------------------------------------------------------------------
+  submissions                         : 6
+  routed to a runnable judge path     : 2
+  escalated to a human (with a reason): 4
+  silently dropped / mis-as-negative  : 0   <-- the number that must be zero
+--------------------------------------------------------------------------------
+
+RESULT: PASS -- every messy submission either routed to a judge it is eligible for, or
+escalated to a human with a typed reason. Nothing was dropped; nothing became a negative by
+failing to parse. The negative verdict only ever comes from the EVM running a real claim.
