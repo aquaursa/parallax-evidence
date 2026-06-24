@@ -26,6 +26,8 @@ The property under test: a real exploit is NEVER told 'safe to close' unless CER
 
 RESULT: PASS -- zero real exploits suppressed.
 Every incident the engine could not certify was ESCALATED to a human as a confirmed-runnable
-fact, exactly as it would reach the triager today. The automation removed work on the 9 it could
-prove (a conservation-checked, replayable witness), and quietly preserved the rest. A missed
-Critical -- a real bug silently closed -- cannot happen on this path by construction.
+fact, exactly as it would reach the triager today. The automation removed work on the ones it
+could prove (a conservation-checked, replayable witness), and preserved the rest. The reason a
+real bug cannot be silently closed is structural: only a clean, re-derivable negative clears the
+bar for dismissal, and a real exploit moves value and produces a witness, which routes the other
+way. The discard lane is reachable only by submissions that provably are not exploits.

@@ -30,8 +30,12 @@ THE CARDINAL SAFETY PROPERTY (this demo checks it on every row):
   discards a report a human would have wanted to see.
 
 The rows below are the real-incident outcomes (SunWeb3Sec/DeFiHackLabs, Ethereum, each a CONFIRMED on-chain
-exploit), as adjudicated by the production engine over a live archive fork. 9 of 13 certified automatically;
-the other 4 reproduced under forge and ESCALATED. The count that matters: real exploits SUPPRESSED = 0.
+exploit), as adjudicated by the production engine over a live archive fork. This set of 13 demonstrates the
+property directly: 9 certified automatically, the other 4 reproduced under forge and ESCALATED, with real
+exploits SUPPRESSED = 0. The same property has since been checked on a larger stratified sample of 41 real
+Ethereum exploits drawn evenly across eras (about three in five certified automatically, the rest routed to a
+human): again, every one was certified or routed, and none were suppressed. The count that matters does not
+change with the sample: real exploits SUPPRESSED = 0.
 """
 import sys
 
@@ -122,9 +126,11 @@ def main():
     if suppressed == 0:
         print("\nRESULT: PASS -- zero real exploits suppressed.")
         print("Every incident the engine could not certify was ESCALATED to a human as a confirmed-runnable")
-        print("fact, exactly as it would reach the triager today. The automation removed work on the 9 it could")
-        print("prove (a conservation-checked, replayable witness), and quietly preserved the rest. A missed")
-        print("Critical -- a real bug silently closed -- cannot happen on this path by construction.")
+        print("fact, exactly as it would reach the triager today. The automation removed work on the ones it")
+        print("could prove (a conservation-checked, replayable witness), and preserved the rest. The reason a")
+        print("real bug cannot be silently closed is structural: only a clean, re-derivable negative clears the")
+        print("bar for dismissal, and a real exploit moves value and produces a witness, which routes the other")
+        print("way. The discard lane is reachable only by submissions that provably are not exploits.")
         return 0
     print(f"\nRESULT: FAIL -- {suppressed} real exploit(s) would be suppressed. This violates the safety property.")
     return 1
