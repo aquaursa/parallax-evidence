@@ -33,29 +33,64 @@ MODEL = os.environ.get("SLOP_MODEL", "claude-sonnet-4-5-20250929")
 FORK_BLOCK = int(os.environ.get("FORK_BLOCK", "20000000"))
 ACTOR = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
-# Real, battle-tested, deployed mainnet contracts. A claimed exploit against any of these SHOULD fail -- that is
-# the point. Each carries the minimal ABI surface the model may call (so the proposed sequence is executable).
+# Real, battle-tested, deployed mainnet contracts spanning the categories a bounty queue actually contains: ERC20
+# tokens, liquid-staking tokens, lending / money-markets, ERC4626 vaults, AMM pools, a DEX router, a governance
+# token, and a wrapped-staking token. A claimed exploit against any of these SHOULD fail -- that is the point.
+# Each carries a `category` (so the demonstration shows range, not one surface repeated) and the minimal ABI
+# surface the model may call (so the proposed sequence is executable).
 TARGETS = [
-    {"name": "WETH9", "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    {"name": "WETH9", "category": "ERC20 token", "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
      "blurb": "Wrapped Ether (WETH9), the canonical wrapped-ETH contract.",
      "abi": ["deposit()", "withdraw(uint256)", "transfer(address,uint256)", "transferFrom(address,address,uint256)",
              "approve(address,uint256)", "balanceOf(address)", "totalSupply()"]},
-    {"name": "USDC", "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    {"name": "USDC", "category": "ERC20 stablecoin", "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
      "blurb": "Circle USD Coin (USDC) proxy, an upgradeable ERC20 stablecoin.",
      "abi": ["transfer(address,uint256)", "transferFrom(address,address,uint256)", "approve(address,uint256)",
              "balanceOf(address)", "totalSupply()", "mint(address,uint256)", "configureMinter(address,uint256)"]},
-    {"name": "DAI", "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    {"name": "DAI", "category": "ERC20 stablecoin", "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
      "blurb": "MakerDAO Dai stablecoin (DAI), an ERC20 with permit and a minting authority.",
      "abi": ["transfer(address,uint256)", "transferFrom(address,address,uint256)", "approve(address,uint256)",
              "balanceOf(address)", "totalSupply()", "mint(address,uint256)"]},
-    {"name": "Lido_stETH", "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+    {"name": "Lido_stETH", "category": "liquid-staking token", "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
      "blurb": "Lido staked ETH (stETH), a rebasing liquid-staking token.",
      "abi": ["submit(address)", "transfer(address,uint256)", "transferShares(address,uint256)",
              "approve(address,uint256)", "balanceOf(address)", "getTotalShares()", "getPooledEthByShares(uint256)"]},
-    {"name": "Compound_cDAI", "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+    {"name": "RocketPool_rETH", "category": "liquid-staking token", "address": "0xae78736Cd615f374D3085123A210448E74Fc6393",
+     "blurb": "Rocket Pool rETH, a reward-bearing liquid-staking token.",
+     "abi": ["transfer(address,uint256)", "transferFrom(address,address,uint256)", "approve(address,uint256)",
+             "balanceOf(address)", "getExchangeRate()", "getEthValue(uint256)", "burn(uint256)"]},
+    {"name": "Compound_cDAI", "category": "lending money-market", "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
      "blurb": "Compound cDAI, an interest-bearing money-market token for DAI.",
      "abi": ["mint(uint256)", "redeem(uint256)", "redeemUnderlying(uint256)", "borrow(uint256)",
              "transfer(address,uint256)", "balanceOf(address)", "exchangeRateStored()"]},
+    {"name": "Aave_aUSDC", "category": "lending money-market", "address": "0xBcca60bB61934080951369a648Fb03DF4F96263C",
+     "blurb": "Aave V2 interest-bearing aUSDC token.",
+     "abi": ["transfer(address,uint256)", "transferFrom(address,address,uint256)", "approve(address,uint256)",
+             "balanceOf(address)", "scaledBalanceOf(address)", "mint(address,uint256,uint256)"]},
+    {"name": "Maker_sDAI", "category": "ERC4626 vault", "address": "0x83F20F44975D03b1b09e64809B757c47f942BEeA",
+     "blurb": "Savings DAI (sDAI), an ERC4626 vault wrapping the DAI Savings Rate.",
+     "abi": ["deposit(uint256,address)", "withdraw(uint256,address,address)", "redeem(uint256,address,address)",
+             "mint(uint256,address)", "convertToAssets(uint256)", "convertToShares(uint256)", "balanceOf(address)"]},
+    {"name": "Uniswap_V2_USDC_WETH", "category": "AMM pool", "address": "0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc",
+     "blurb": "Uniswap V2 USDC/WETH pair, a constant-product AMM pool.",
+     "abi": ["swap(uint256,uint256,address,bytes)", "mint(address)", "burn(address)", "skim(address)",
+             "sync()", "getReserves()", "balanceOf(address)"]},
+    {"name": "Curve_3pool", "category": "AMM pool", "address": "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",
+     "blurb": "Curve 3pool (DAI/USDC/USDT), a stableswap AMM.",
+     "abi": ["exchange(int128,int128,uint256,uint256)", "add_liquidity(uint256[3],uint256)",
+             "remove_liquidity(uint256,uint256[3])", "get_dy(int128,int128,uint256)", "get_virtual_price()"]},
+    {"name": "Uniswap_V3_USDC_WETH", "category": "AMM pool", "address": "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640",
+     "blurb": "Uniswap V3 USDC/WETH 0.05% pool, a concentrated-liquidity AMM.",
+     "abi": ["swap(address,bool,int256,uint160,bytes)", "flash(address,uint256,uint256,bytes)",
+             "collect(address,int24,int24,uint128,uint128)", "slot0()", "liquidity()"]},
+    {"name": "ENS_token", "category": "governance token", "address": "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72",
+     "blurb": "ENS governance token, an ERC20Votes token with delegation.",
+     "abi": ["transfer(address,uint256)", "transferFrom(address,address,uint256)", "approve(address,uint256)",
+             "delegate(address)", "balanceOf(address)", "getVotes(address)", "mint(address,uint256)"]},
+    {"name": "Lido_wstETH", "category": "wrapped-staking token", "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+     "blurb": "Wrapped stETH (wstETH), a non-rebasing wrapper over Lido stETH.",
+     "abi": ["wrap(uint256)", "unwrap(uint256)", "transfer(address,uint256)", "approve(address,uint256)",
+             "balanceOf(address)", "stEthPerToken()", "getStETHByWstETH(uint256)"]},
 ]
 
 # The slop sub-modes we want represented, so the demonstration covers the real distribution of AI failure, not
@@ -119,23 +154,44 @@ refers to the attacker."""
 
 
 def _extract_json(text):
-    """Robustly pull the JSON object out of a model response (handles stray prose / code fences)."""
+    """Robustly pull the first complete JSON object out of a model response, tolerating code fences and any
+    prose before or after it. Scans for the first '{' and returns the balanced span (brace-aware, string-aware),
+    so trailing commentary or a closing fence never breaks the parse."""
     text = text.strip()
+    # strip a leading ```json / ``` fence if present
     if text.startswith("```"):
-        # take the content between the first pair of fences
-        parts = text.split("```")
-        if len(parts) >= 2:
-            text = parts[1]
-            if text.lstrip().lower().startswith("json"):
-                text = text.lstrip()[4:]
-    text = text.strip()
-    # fall back to the first {...} span
-    if not text.startswith("{"):
-        i = text.find("{")
-        j = text.rfind("}")
-        if i != -1 and j != -1 and j > i:
-            text = text[i:j + 1]
-    return json.loads(text)
+        nl = text.find("\n")
+        if nl != -1:
+            text = text[nl + 1:]
+        if text.rstrip().endswith("```"):
+            text = text.rstrip()[:-3]
+    # find the first balanced {...} object
+    start = text.find("{")
+    if start == -1:
+        return json.loads(text)  # let it raise informatively
+    depth = 0
+    in_str = False
+    esc = False
+    for i in range(start, len(text)):
+        c = text[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+        else:
+            if c == '"':
+                in_str = True
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    return json.loads(text[start:i + 1])
+    # unbalanced; try the whole tail
+    return json.loads(text[start:])
 
 
 def adjudicate(target, slop):
@@ -204,14 +260,20 @@ def adjudicate(target, slop):
 def main():
     n_per_target = int(os.environ.get("N_PER_TARGET", "2"))
     out_path = os.environ.get("SLOP_OUT", "/tmp/slop_trials.jsonl")
-    open(out_path, "w").close()
+    only = os.environ.get("ONLY", "").strip()
+    only_set = set(s.strip() for s in only.split(",") if s.strip()) if only else None
+    append = os.environ.get("APPEND", "") == "1"
+    if not append:
+        open(out_path, "w").close()
+    targets = [t for t in TARGETS if (only_set is None or t["name"] in only_set)]
     trials = []
-    angle_i = 0
-    for target in TARGETS:
+    angle_i = int(os.environ.get("ANGLE_START", "0"))
+    for target in targets:
         for _ in range(n_per_target):
             angle = ANGLES[angle_i % len(ANGLES)]
             angle_i += 1
-            row = {"target": target["name"], "address": target["address"], "angle": angle}
+            row = {"target": target["name"], "category": target["category"],
+                   "address": target["address"], "angle": angle}
             try:
                 slop = author_slop(target, angle)
                 row["report"] = {k: slop.get(k) for k in ("title", "severity", "claimed_impact", "report")}
@@ -223,10 +285,31 @@ def main():
             trials.append(row)
             open(out_path, "a").write(json.dumps(row, default=str) + "\n")
             v = row.get("verdict", {})
-            print("  %-14s %-22s -> %s" % (target["name"], (row.get("report") or {}).get("claimed_impact", "?"),
-                                           v.get("outcome_status") or row.get("error", "?")))
+            print("  %-22s %-18s %-20s -> %s" % (
+                target["name"], "[" + target["category"] + "]",
+                (row.get("report") or {}).get("claimed_impact", "?"),
+                v.get("outcome_status") or row.get("error", "?")))
             time.sleep(1)
-    print("\n  wrote %d trials to %s" % (len(trials), out_path))
+
+    # per-category summary, so the run shows RANGE rather than one surface repeated.
+    import collections
+    by_cat = collections.defaultdict(lambda: [0, 0])  # category -> [n, n_clean_negative]
+    false_certs = 0
+    for r in trials:
+        cat = r.get("category", "?")
+        by_cat[cat][0] += 1
+        st = (r.get("verdict") or {}).get("outcome_status")
+        if st == "bounded_clean_negative":
+            by_cat[cat][1] += 1
+        if st in ("economic_witness", "state_witness"):
+            false_certs += 1
+    print("\n  per-category (clean negatives / trials):")
+    for cat in sorted(by_cat):
+        n, cn = by_cat[cat]
+        print("    %-24s %d / %d" % (cat, cn, n))
+    print("\n  total trials: %d   false certifications: %d   categories: %d"
+          % (len(trials), false_certs, len(by_cat)))
+    print("  wrote %d trials to %s" % (len(trials), out_path))
 
 
 if __name__ == "__main__":

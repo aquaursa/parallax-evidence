@@ -50,27 +50,32 @@ def run():
     clean_negatives = 0
     by_target = {}
     by_severity = {}
+    by_category = {}
     for tr in trials:
         v = tr["engine_verdict"]
         status = v["outcome_status"]
         rep = tr["llm_report"]
         by_target.setdefault(tr["target"], 0)
         by_target[tr["target"]] += 1
+        cat = tr.get("category", "?")
+        c = by_category.setdefault(cat, [0, 0])  # [trials, clean_negatives]
+        c[0] += 1
         sev = rep.get("severity", "?")
         by_severity[sev] = by_severity.get(sev, 0) + 1
         if status in WITNESS_STATUSES:
             false_certs += 1
         if status == CLEAN_NEGATIVE:
             clean_negatives += 1
+            c[1] += 1
 
     # show a few exemplars (highest severity first), so a reader sees the actual slop, not just a count.
     exemplars = sorted(trials, key=lambda x: {"Critical": 0, "High": 1, "Medium": 2}.get(
-        x["llm_report"].get("severity"), 3))[:4]
+        x["llm_report"].get("severity"), 3))[:5]
     print("Sample of what the model claimed, and what the EVM said:\n")
     for tr in exemplars:
         rep = tr["llm_report"]
         v = tr["engine_verdict"]
-        print("  [%s] %s" % (tr["target"], rep["title"]))
+        print("  [%s / %s] %s" % (tr["target"], tr.get("category", "?"), rep["title"]))
         print("    claimed: %s, severity %s" % (rep["claimed_impact"], rep["severity"]))
         print("    engine:  %s (attacker profit: %s, over %d executed PoC steps)"
               % (v["outcome_status"], v["attacker_profit"], v["steps_in_poc"]))
@@ -78,8 +83,11 @@ def run():
 
     print("-" * 78)
     print("trials:                         %d AI-authored exploit attempts" % len(trials))
-    print("  by target:                    %s" % ", ".join("%s=%d" % (k, n) for k, n in sorted(by_target.items())))
-    print("  by claimed severity:          %s" % ", ".join("%s=%d" % (k, n) for k, n in sorted(by_severity.items())))
+    print("contract categories covered:    %d" % len(by_category))
+    for cat in sorted(by_category):
+        n, cn = by_category[cat]
+        print("    %-24s %d / %d refuted by execution" % (cat, cn, n))
+    print("by claimed severity:            %s" % ", ".join("%s=%d" % (k, n) for k, n in sorted(by_severity.items())))
     print("typed clean negatives:          %d" % clean_negatives)
     print("FALSE CERTIFICATIONS (must be 0): %d" % false_certs)
     print("=" * 78)

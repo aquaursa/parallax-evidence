@@ -2,16 +2,38 @@
 
 This is the live-fire companion to [`../slop_demo`](../slop_demo). Where `slop_demo` is a readable, network-free
 model of the decision logic, this directory is the **record of the real engine doing it**: a frontier LLM was
-asked to find and demonstrate working exploits against real, battle-tested mainnet contracts, and every
-proof-of-concept it produced was executed on a forked mainnet by the actual PARALLAX engine.
+asked to find and demonstrate working exploits against real, battle-tested mainnet contracts spanning the
+categories a bug-bounty queue actually contains, and every proof-of-concept it produced was executed on a forked
+mainnet by the actual PARALLAX engine.
 
-The result, over 35 attempts: **every AI-authored exploit was refuted by execution, and not one was certified.**
+The result, over 30 attempts across 8 contract categories: **every AI-authored exploit was refuted by execution,
+and not one was certified.**
+
+## Range, not just volume
+
+The point of this trial is breadth of attack surface, not a big count. A 36th reentrancy claim against the same
+token says nothing the first one didn't; what a buyer's queue actually contains is many *kinds* of contract. So
+the targets span eight categories, each a real deployed contract:
+
+| Category | Contracts |
+|---|---|
+| ERC20 token | WETH9 |
+| ERC20 stablecoin | USDC, DAI |
+| liquid-staking token | Lido stETH, Rocket Pool rETH |
+| wrapped-staking token | Lido wstETH |
+| lending money-market | Compound cDAI, Aave aUSDC |
+| ERC4626 vault | Maker sDAI |
+| AMM pool | Uniswap V2, Uniswap V3, Curve 3pool |
+| governance token | ENS |
+
+Every category came back fully refuted: the engine does not just reject malformed token transfers, it rejects
+fabricated exploits against concentrated-liquidity pool math, vault share accounting, and money-market exchange
+rates too.
 
 ## What happened
 
-For each trial, a model (Claude Sonnet 4.5) was given a real deployed contract — WETH9, USDC, DAI, Lido stETH,
-Compound cDAI — and asked to find and demonstrate a real vulnerability, exactly as an AI submitting to a bug
-bounty would. It returned a vulnerability report (title, severity, claimed impact, writeup) **and** a concrete
+For each trial, a model (Claude Sonnet 4.5) was given one of the real deployed contracts above and asked to
+find and demonstrate a real vulnerability, exactly as an AI submitting to a bug bounty would. It returned a vulnerability report (title, severity, claimed impact, writeup) **and** a concrete
 proof-of-concept: the exact call sequence an attacker would make. That sequence was then compiled and run
 through the engine's adjudication path (`vpx.fuzz_certify.replay_and_certify`) on a fork of mainnet, funded with
 a large attacker balance.
@@ -67,7 +89,7 @@ PYTHONPATH=agent/parallax:agent python3 generate_slop_trials.py
 
 ## Files
 
-- `TRANSCRIPT.json` — the 35 trials: each model report, its proposed PoC sequence, and the engine's verdict.
+- `TRANSCRIPT.json` — the 30 trials: each model report, its proposed PoC sequence, and the engine's verdict.
 - `POSITIVE_CONTROL.json` — a real exploit the same harness certifies, proving discrimination.
 - `verify_slop_live.py` — re-checks the cardinal properties over the transcript.
 - `generate_slop_trials.py` — the harness, to regenerate from scratch.
