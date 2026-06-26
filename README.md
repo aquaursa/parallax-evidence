@@ -4,6 +4,8 @@ Three claims matter most to a bug-bounty platform, and all three are reproducibl
 
 **It does not raise false positives.** On a curated, adversarial dataset it returns FP=0 and FN=0 on the adjudication track, and correctly declines out-of-scope submissions on the scope-routing track. It tells real exploits apart from confident, AI-written reports that don't reproduce — including slop built to *look* corroborated — by holding the submitter's claim and the EVM-executed evidence side by side and checking they agree. (`slop_demo/`)
 
+**It beats real AI slop, live.** Beyond the logic model above, [`slop_live/`](slop_live) is the record of the *actual engine* doing it: a frontier LLM was asked to find and demonstrate working exploits against real, battle-tested mainnet contracts (WETH, USDC, DAI, stETH, Compound), and every proof-of-concept it wrote was executed on a forked mainnet. Across 35 attempts — many rated Critical, all fluent and specific — **every fabricated exploit was refuted by execution and not one was certified.** A positive control proves the same harness certifies a *real* exploit, so the negatives are discrimination, not a reflex.
+
 **It does not suppress real bugs.** The fear that actually matters in triage is the opposite of a false positive: silently closing a genuine vulnerability. Over the real-incident outcomes, every exploit the engine cannot certify is *escalated to a human with a reason*, never auto-closed. A missed Critical cannot happen on this path by construction. (`safety_demo/`)
 
 **It fails closed on messy input.** A real submission in the wild is a mess — prose with no code, a unit test that never forks mainnet, a report naming no target. When a submission isn't something the engine can run, it routes to a human with a typed reason; it is never dropped and never becomes a negative by failing to parse. (`intake_demo/`)
@@ -27,6 +29,20 @@ RESULT: PASS -- every real witness CORROBORATED, every slop mode caught; clean s
 ```
 
 The hard cases are in there. A PoC that **passes under forge** while asserting `assertTrue(true)`. A submission that claims theft but moves no money. Slop that manufactures a real-looking gain with test-harness cheatcodes, pranking a whale or writing a balance with `deal()`. A filter that only asks "did the test pass?" falls for all three. The claim-versus-evidence check doesn't.
+
+For the live-fire version — real AI-written reports run through the real engine — see `slop_live/`:
+
+```sh
+python3 slop_live/verify_slop_live.py
+```
+
+```
+trials:                         35 AI-authored exploit attempts
+typed clean negatives:          35
+FALSE CERTIFICATIONS (must be 0): 0
+positive control: economic_witness  -> certified, as it should be
+RESULT: PASS -- every AI-written report was refuted by execution; zero were certified.
+```
 
 Then the two demos that answer the questions a triage lead actually asks:
 

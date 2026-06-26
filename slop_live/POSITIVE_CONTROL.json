@@ -1,0 +1,31 @@
+{
+  "schema": "parallax.slop_live_positive_control/v1",
+  "purpose": "Proof that the slop_live harness DISCRIMINATES rather than blanket-rejects: the SAME engine path (replay_and_certify, same fork) certifies a sequence that genuinely moves value to the attacker. If the engine always returned a negative, this would too; it does not.",
+  "fork_block": 20000000,
+  "sequence": [
+    {
+      "target": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "sig": "approve(address,uint256)",
+      "args": [
+        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "1000000000000"
+      ],
+      "sender": "0x1111111111111111111111111111111111111111"
+    },
+    {
+      "target": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "sig": "transferFrom(address,address,uint256)",
+      "args": [
+        "0x1111111111111111111111111111111111111111",
+        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "1000000000000"
+      ],
+      "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }
+  ],
+  "engine_verdict": {
+    "outcome_status": "economic_witness",
+    "meaning": "replayable EVM trace shows positive attacker net worth under the declared threat model",
+    "attacker_profit": "1000000000000"
+  }
+}

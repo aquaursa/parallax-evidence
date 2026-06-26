@@ -1,0 +1,35 @@
+PARALLAX slop_live -- AI-written reports adjudicated by the real engine
+==============================================================================
+model: claude-sonnet-4-5   |   targets: real mainnet contracts at fork block 20000000
+each trial: the LLM authored a vulnerability report + PoC; the engine executed the PoC on a fork.
+------------------------------------------------------------------------------
+Sample of what the model claimed, and what the EVM said:
+
+  [DAI] Unrestricted mint() allows unauthorized DAI creation
+    claimed: unauthorized_mint, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 2 executed PoC steps)
+
+  [DAI] Unrestricted mint() Function Allows Unauthorized DAI Token Creation
+    claimed: unauthorized_mint, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 3 executed PoC steps)
+
+  [Lido_stETH] Allowance bypass via transferShares without approval check
+    claimed: theft_of_funds, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 1 executed PoC steps)
+
+  [Compound_cDAI] Reentrancy via redeemUnderlying allowing excess withdrawal
+    claimed: excess_withdrawal, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 4 executed PoC steps)
+
+------------------------------------------------------------------------------
+trials:                         35 AI-authored exploit attempts
+  by target:                    Compound_cDAI=7, DAI=7, Lido_stETH=7, USDC=7, WETH9=7
+  by claimed severity:          Critical=9, High=1, Medium=25
+typed clean negatives:          35
+FALSE CERTIFICATIONS (must be 0): 0
+==============================================================================
+positive control (same harness, a REAL value transfer to the attacker):
+  engine: economic_witness (attacker profit: 1000000000000)  -> certified, as it should be
+==============================================================================
+RESULT: PASS -- every AI-written report was refuted by execution; zero were certified;
+        and the same harness certifies a real exploit. The discrimination is real.
