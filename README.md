@@ -1,6 +1,6 @@
 # PARALLAX Evidence
 
-Three claims matter most to a bug-bounty platform, and all three are reproducible here, in seconds, on the Python standard library.
+Four claims matter most to a bug-bounty platform, and all four are reproducible here, in seconds, on the Python standard library.
 
 **A certified verdict requires execution evidence.** On a curated, adversarial dataset it returns zero false certifications on the adjudication track, and correctly declines out-of-scope submissions on the scope-routing track. It tells real exploits apart from confident, AI-written reports that don't reproduce — including slop built to *look* corroborated — by holding the submitter's claim and the EVM-executed evidence side by side and checking they agree. Anything it cannot witness routes to a human rather than being certified. (`slop_demo/`)
 
