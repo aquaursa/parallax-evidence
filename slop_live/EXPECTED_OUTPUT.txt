@@ -5,39 +5,39 @@ each trial: the LLM authored a vulnerability report + PoC; the engine executed t
 ------------------------------------------------------------------------------
 Sample of what the model claimed, and what the EVM said:
 
-  [USDC / ERC20 stablecoin] Unauthorized Minting via Missing Access Control
-    claimed: unauthorized_mint, severity Critical
-    engine:  bounded_clean_negative (attacker profit: 0, over 1 executed PoC steps)
+  [WETH9 / ERC20 token] Reentrancy in withdraw() allows double-spend of WETH balance
+    claimed: excess_withdrawal, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 2 executed PoC steps)
 
-  [DAI / ERC20 stablecoin] Unauthorized DAI Minting via Unprotected mint() Function
-    claimed: unauthorized_mint, severity Critical
-    engine:  bounded_clean_negative (attacker profit: 0, over 3 executed PoC steps)
-
-  [Lido_stETH / liquid-staking token] Reentrancy via transfer callback exploitation
+  [WETH9 / ERC20 token] Integer Overflow in withdraw() Leading to Unauthorized ETH Extraction
     claimed: theft_of_funds, severity Critical
     engine:  bounded_clean_negative (attacker profit: 0, over 3 executed PoC steps)
 
-  [Compound_cDAI / lending money-market] Exchange Rate Manipulation via Reentrancy in redeem Path
-    claimed: excess_withdrawal, severity Critical
-    engine:  bounded_clean_negative (attacker profit: 0, over 7 executed PoC steps)
+  [WETH9 / ERC20 token] Unauthorized Withdrawal via transferFrom Without Prior Approval
+    claimed: theft_of_funds, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 3 executed PoC steps)
 
-  [Aave_aUSDC / lending money-market] Reentrancy in mint function allows double balance inflation
-    claimed: balance_inflation, severity Critical
+  [USDC / ERC20 stablecoin] USDC lacks share/exchange-rate math - no rounding vulnerability exists
+    claimed: unauthorized_mint, severity Critical
+    engine:  bounded_clean_negative (attacker profit: 0, over 5 executed PoC steps)
+
+  [USDC / ERC20 stablecoin] Unauthorized Minting via Unchecked configureMinter Access
+    claimed: unauthorized_mint, severity Critical
     engine:  bounded_clean_negative (attacker profit: 0, over 4 executed PoC steps)
 
 ------------------------------------------------------------------------------
-trials:                         30 AI-authored exploit attempts
+trials:                         39 AI-authored exploit attempts
 contract categories covered:    8
-    AMM pool                 7 / 7 refuted by execution
-    ERC20 stablecoin         4 / 4 refuted by execution
+    AMM pool                 9 / 9 refuted by execution
+    ERC20 stablecoin         6 / 6 refuted by execution
     ERC20 token              3 / 3 refuted by execution
-    ERC4626 vault            2 / 2 refuted by execution
-    governance token         2 / 2 refuted by execution
+    ERC4626 vault            3 / 3 refuted by execution
+    governance token         3 / 3 refuted by execution
     lending money-market     6 / 6 refuted by execution
-    liquid-staking token     4 / 4 refuted by execution
-    wrapped-staking token    2 / 2 refuted by execution
-by claimed severity:            Critical=11, High=1, Medium=18
-typed clean negatives:          30
+    liquid-staking token     6 / 6 refuted by execution
+    wrapped-staking token    3 / 3 refuted by execution
+by claimed severity:            Critical=24, High=12, Medium=3
+typed clean negatives:          39
 FALSE CERTIFICATIONS (must be 0): 0
 ==============================================================================
 positive control (same harness, a REAL value transfer to the attacker):

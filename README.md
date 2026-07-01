@@ -4,7 +4,7 @@ Four claims matter most to a bug-bounty platform, and all four are reproducible 
 
 **A certified verdict requires execution evidence.** On a curated, adversarial dataset it returns zero false certifications on the adjudication track, and correctly declines out-of-scope submissions on the scope-routing track. It tells real exploits apart from confident, AI-written reports that don't reproduce — including slop built to *look* corroborated — by holding the submitter's claim and the EVM-executed evidence side by side and checking they agree. Anything it cannot witness routes to a human rather than being certified. (`slop_demo/`)
 
-**It beats real AI slop, live.** Beyond the logic model above, [`slop_live/`](slop_live) is the record of the *actual engine* doing it: a frontier LLM was asked to find and demonstrate working exploits against real, battle-tested mainnet contracts spanning eight categories a bounty queue actually contains (ERC20 tokens and stablecoins, liquid- and wrapped-staking, lending money-markets, ERC4626 vaults, AMM pools, a governance token), and every proof-of-concept it wrote was executed on a forked mainnet. Across 30 attempts — 11 rated Critical, all fluent and specific — **every fabricated exploit was refuted by execution and not one was certified, every category fully refuted.** A positive control proves the same harness certifies a *real* exploit, so the negatives are discrimination, not a reflex.
+**It beats real AI slop, live.** Beyond the logic model above, [`slop_live/`](slop_live) is the record of the *actual engine* doing it: a frontier LLM was required to submit a concrete exploit against real, battle-tested mainnet contracts spanning eight categories a bounty queue actually contains (ERC20 tokens and stablecoins, liquid- and wrapped-staking, lending money-markets, ERC4626 vaults, AMM pools, a governance token), and every proof-of-concept it wrote was executed on a forked mainnet. Across 39 attempts, every one a committed fabrication — 24 rated Critical, 12 High, all fluent and specific — **every one was refuted by execution and not one was certified, every category fully refuted.** A positive control proves the same harness certifies a *real* exploit, so the negatives are discrimination, not a reflex.
 
 **It does not suppress real bugs.** The fear that actually matters in triage is the opposite of a false positive: silently closing a genuine vulnerability. Over the real-incident outcomes, every exploit the engine cannot certify is *escalated to a human with a reason*, never auto-closed. A genuine exploit is not recorded as a clean negative: a clean negative requires the execution to run and produce no in-scope effect, so a real bug either certifies or routes. (`safety_demo/`)
 
@@ -37,9 +37,9 @@ python3 slop_live/verify_slop_live.py
 ```
 
 ```
-trials:                         30 AI-authored exploit attempts
+trials:                         39 AI-authored exploit attempts
 contract categories covered:    8
-typed clean negatives:          30
+typed clean negatives:          39
 FALSE CERTIFICATIONS (must be 0): 0
 positive control: economic_witness  -> certified, as it should be
 RESULT: PASS -- every AI-written report was refuted by execution; zero were certified.

@@ -11,9 +11,12 @@ EVM actually did. A report whose claimed exploit produces no witness comes back 
 the verdict, because the verdict is the EVM's.
 
 The cardinal property: the targets are battle-tested, secure contracts (WETH, USDC, DAI, stETH, ...), so a
-correct engine returns a typed negative for every fabricated exploit. The model is NOT told to write
-deliberately-broken PoCs; it is asked to find and demonstrate a real vulnerability, exactly as an AI submitting
-to a bounty would. That it cannot -- and that the engine says so by execution -- is the demonstration.
+correct engine returns a typed negative for every fabricated exploit. Each trial REQUIRES the model to submit a
+concrete exploit and PoC -- the bounty framing explicitly rejects "no vulnerability found" -- which models the
+confident AI submitter who files a report regardless of whether a real bug exists (the actual slop threat). The
+model is not told to write a deliberately-broken PoC; it is told to submit its strongest concrete exploit. Since
+the targets are secure, every such submission is necessarily a fabrication, and that the engine refutes every
+one by execution -- while still certifying a real exploit (POSITIVE_CONTROL) -- is the demonstration.
 
 Outputs a JSONL transcript (one row per trial: the model's report, its proposed sequence, the engine verdict)
 and a summary. Needs an Ethereum archive RPC and an Anthropic API key.
@@ -111,9 +114,10 @@ def _http_post(url, headers, body, timeout=120):
 
 
 def author_slop(target, angle):
-    """Ask the model to find and demonstrate a real vulnerability in `target`, returning a report + an
-    executable PoC sequence. The model is told to submit only if it has a working exploit -- exactly the framing
-    a bounty submitter operates under. It returns strict JSON so the PoC is machine-executable."""
+    """Ask the model to submit a concrete exploit for `target` under the given `angle`, returning a report + an
+    executable PoC sequence. The bounty framing explicitly rejects "no vulnerability found", so the model must
+    commit to a concrete exploit -- modeling the confident AI submitter who files regardless. Against a secure
+    target the submission is necessarily a fabrication. Returns strict JSON so the PoC is machine-executable."""
     abi_list = "\n".join("  - " + s for s in target["abi"])
     prompt = f"""You are a security researcher submitting to a smart-contract bug bounty. You are reviewing this \
 deployed mainnet contract:
@@ -123,13 +127,15 @@ DESCRIPTION: {target['blurb']}
 CALLABLE FUNCTIONS (the only functions your PoC may call on the target):
 {abi_list}
 
-Your task: find and demonstrate {angle}. Write a convincing, specific vulnerability report AND a concrete \
-proof-of-concept: the exact sequence of calls an attacker would make, with concrete arguments, that results in \
-the attacker profiting (gaining tokens/ETH they should not have).
+Your task: demonstrate {angle}. You have identified this vulnerability in the contract and are now submitting \
+it. Write a convincing, specific vulnerability report AND a concrete proof-of-concept: the exact sequence of \
+calls an attacker would make, with concrete arguments, that results in the attacker profiting (gaining \
+tokens/ETH they should not have).
 
-The bounty only pays for a WORKING exploit that an automated replay can reproduce on a fork of current mainnet \
-state, starting from an attacker account funded with a large balance of ETH and the relevant tokens. Submit \
-your best exploit.
+This bounty does NOT accept "no vulnerability found", "informational", or "the contract is secure" submissions. \
+You must commit to a concrete exploit and provide the exact attacker call sequence that reproduces it on a fork \
+of current mainnet state, starting from an attacker account funded with a large balance of ETH and the relevant \
+tokens. Present it as a working attack, not a hypothetical. Submit your strongest exploit.
 
 Respond with ONLY a JSON object (no markdown, no backticks) of this exact shape:
 {{
